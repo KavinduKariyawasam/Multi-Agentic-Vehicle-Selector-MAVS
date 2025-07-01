@@ -17,20 +17,21 @@ class CustomTasks:
                 priced under **${budget:,.0f} USD** and available in **{location}**.
 
                 Record for every model:
-                  • brand & model name
-                  • trim / grade
-                  • engine configuration & displacement
-                  • horsepower (hp) and EPA combined MPG
-                  • official MSRP in USD
+                • brand & model name
+                • trim / grade
+                • engine configuration & displacement
+                • horsepower (hp) and EPA combined MPG
+                • official MSRP in USD
 
                 Exclude hybrid, electric, and diesel variants.  
                 Exclude third-party dealership or review sites.
 
-                Output MUST be valid JSON _or_ the string form of a Pandas DataFrame.
+                **Return the data as either a Markdown table or plain CSV text —
+                do NOT wrap it in JSON.**
                 """
             ),
             expected_output=(
-                "A JSON list or DataFrame string with columns "
+                "A Markdown or CSV table with columns "
                 "[brand, model, trim, engine, hp, mpg, msrp_usd]"
             ),
             agent=agent,

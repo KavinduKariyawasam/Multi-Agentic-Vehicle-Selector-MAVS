@@ -5,6 +5,11 @@ from crewai import Crew
 from agents import CustomAgents
 from tasks import CustomTasks
 
+# from crewai.llm import BadRequestError
+try:                                   # openai ≥ 1.0
+    from openai import BadRequestError
+except ImportError:                    # openai 0.27-0.28
+    from openai.error import InvalidRequestError as BadRequestError
 
 def main() -> None:
     print("### Vehicle-Finder Crew\n")
@@ -36,7 +41,18 @@ def main() -> None:
     )
 
     # CrewAI ≤ 0.24 uses .kickoff(); ≥ 0.25 switched to .run()
-    result = crew.kickoff() if hasattr(crew, "kickoff") else crew.run()
+    # --- wherever you run the crew ----------------------------------------
+    try:
+        result = crew.kickoff() if hasattr(crew, "kickoff") else crew.run()
+    except BadRequestError as e:
+        # new SDK ⇒ e.response; old SDK ⇒ e.body
+        payload = getattr(e, "response", None) or getattr(e, "body", None)
+        if hasattr(payload, "text"):           # requests.Response
+            print("Groq 400 →", payload.status_code, payload.text)
+        else:
+            print("Groq 400 →", payload or str(e))
+        raise
+                             # optional: re-raise for traceback
 
     print("\n### Final Recommendations ###\n")
     print(result)
