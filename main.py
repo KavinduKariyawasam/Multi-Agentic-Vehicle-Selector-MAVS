@@ -32,12 +32,12 @@ class CustomCrew:
         tasks = CustomTasks()
 
         # Define your custom agents and tasks here
-        custom_agent_1 = agents.data_agent()
+        data_agent = agents.data_agent()
         # custom_agent_2 = agents.agent_2_name()
 
         # Custom tasks include agent name and variables as input
-        custom_task_1 = tasks.task_1_name(
-            custom_agent_1,
+        data_collect_task = tasks.data_collect_task(
+            data_agent,
             self.var1,
             self.var2,
         )
@@ -48,8 +48,8 @@ class CustomCrew:
 
         # Define your custom crew here
         crew = Crew(
-            agents=[custom_agent_1],
-            tasks=[custom_task_1],
+            agents=[data_agent],
+            tasks=[data_collect_task],
             verbose=True,
         )
 

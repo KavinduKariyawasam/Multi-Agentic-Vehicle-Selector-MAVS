@@ -5,16 +5,33 @@ from langchain_community.llms import Ollama
 # from langchain_core.language_models.llms import LLM
 import requests
 from groq import Groq
+from dotenv import load_dotenv
+import os
+from langchain_tavily import TavilySearch
+from tools.search_tools import SearchTools
+from crewai_tools import ScrapeWebsiteTool
+import os
 
-# This is an example of how to define custom agents.
-# You can define as many agents as you want.
-# You can also define custom tasks in tasks.py
+# SerperDevTool will read SERPER_API_KEY from the environment:
+search_tool = ScrapeWebsiteTool()             # -> BaseTool
+# website_tool = WebsiteSearchTool()    
+# Load from .env
+load_dotenv()
+
+api_key = os.getenv("GROQ_API_KEY")
+tavily_api_key = os.getenv("TAVILY_API_KEY")
+
+search_tools = SearchTools()                 # <-- instantiate
+internet_search_tool = search_tools.search_internet 
+
 class CustomAgents:
     def __init__(self):
         # self.OpenAIGPT35 = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.7)
         # self.OpenAIGPT4 = ChatOpenAI(model_name="gpt-4", temperature=0.7)
         # self.groq_llm = Groq(api_key="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")
-        self.groq_llm = LLM(model="groq/llama3-8b-8192")
+        # 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
+        self.search_tool = TavilySearch(max_results=5)
+        self.groq_llm = LLM(model="groq/llama-3.3-70b-versatile")
 
     def data_agent(self):
         return Agent(
@@ -31,9 +48,11 @@ class CustomAgents:
             goal=dedent(f"""
                 To extract accurate, real-time information on brand-new petrol-powered vehicles 
                 listed on official U.S. manufacturer websites. It collects vehicle models, trims, 
-                engine types, features, and MSRP — while avoiding any third-party or dealer-based data.
+                engine types, features, and MSRP — while avoiding any third-party or dealer-based data.You can call one tool:
+
+                • search_tool: Searches official automaker sites only. Avoid dealers and ads.
             """),
-            # Optional: tools=[headless_browser_scraper, html_parser, js_evaluator],
+            tools=[search_tool],
             allow_delegation=False,
             verbose=True,
             llm=self.groq_llm,
