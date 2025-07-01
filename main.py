@@ -1,72 +1,46 @@
-import os
-from crewai import Agent, Task, Crew, Process
-# from langchain_openai import ChatOpenAI
-# from decouple import config
-
 from textwrap import dedent
+
+from crewai import Crew
+
 from agents import CustomAgents
 from tasks import CustomTasks
 
-# Install duckduckgo-search for this example:
-# !pip install -U duckduckgo-search
 
-from langchain_community.tools import DuckDuckGoSearchRun
+def main() -> None:
+    print("### Vehicle-Finder Crew\n")
 
-search_tool = DuckDuckGoSearchRun()
+    # ------------------------------------------------------------------ #
+    # Simple interactive CLI
+    # ------------------------------------------------------------------ #
+    location = input("Enter sales region / country (e.g. 'United States'): ").strip()
+    budget   = float(
+        input("Enter maximum budget in USD (e.g. 30000): ").replace(",", "").strip()
+    )
 
-# os.environ["OPENAI_API_KEY"] = config("OPENAI_API_KEY")
-# os.environ["OPENAI_ORGANIZATION"] = config("OPENAI_ORGANIZATION_ID")
+    # ------------------------------------------------------------------ #
+    # Instantiate agents & tasks
+    # ------------------------------------------------------------------ #
+    agents = CustomAgents()
+    tasks  = CustomTasks()
 
-# This is the main class that you will use to define your custom crew.
-# You can define as many agents and tasks as you want in agents.py and tasks.py
+    scraper_agent = agents.vehicle_scraper()
+    analyst_agent = agents.ranking_analyst()
 
+    task_scrape = tasks.collect_vehicles(scraper_agent, location, budget)
+    task_rank   = tasks.rank_vehicles(analyst_agent, task_scrape)
 
-class CustomCrew:
-    def __init__(self, var1, var2):
-        self.var1 = var1
-        self.var2 = var2
+    crew = Crew(
+        agents=[scraper_agent, analyst_agent],
+        tasks=[task_scrape, task_rank],
+        verbose=True,
+    )
 
-    def run(self):
-        # Define your custom agents and tasks in agents.py and tasks.py
-        agents = CustomAgents()
-        tasks = CustomTasks()
+    # CrewAI ≤ 0.24 uses .kickoff(); ≥ 0.25 switched to .run()
+    result = crew.kickoff() if hasattr(crew, "kickoff") else crew.run()
 
-        # Define your custom agents and tasks here
-        custom_agent_1 = agents.data_agent()
-        # custom_agent_2 = agents.agent_2_name()
-
-        # Custom tasks include agent name and variables as input
-        custom_task_1 = tasks.task_1_name(
-            custom_agent_1,
-            self.var1,
-            self.var2,
-        )
-
-        # custom_task_2 = tasks.task_2_name(
-        #     custom_agent_2,
-        # )
-
-        # Define your custom crew here
-        crew = Crew(
-            agents=[custom_agent_1],
-            tasks=[custom_task_1],
-            verbose=True,
-        )
-
-        result = crew.kickoff()
-        return result
-
-
-# This is the main function that you will use to run your custom crew.
-if __name__ == "__main__":
-    print("## Welcome to Crew AI Template")
-    print("-------------------------------")
-    location = input(dedent("""Enter location: """))
-    budget = input(dedent("""Enter budget: """))
-
-    custom_crew = CustomCrew(location, budget)
-    result = custom_crew.run()
-    print("\n\n########################")
-    print("## Here is you custom crew run result:")
-    print("########################\n")
+    print("\n### Final Recommendations ###\n")
     print(result)
+
+
+if __name__ == "__main__":
+    main()
