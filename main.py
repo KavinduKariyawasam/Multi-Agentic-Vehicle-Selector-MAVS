@@ -45,13 +45,18 @@ def main() -> None:
     try:
         result = crew.kickoff() if hasattr(crew, "kickoff") else crew.run()
     except BadRequestError as e:
-        # new SDK ⇒ e.response; old SDK ⇒ e.body
-        payload = getattr(e, "response", None) or getattr(e, "body", None)
-        if hasattr(payload, "text"):           # requests.Response
-            print("Groq 400 →", payload.status_code, payload.text)
+        detail = getattr(e, "response", None) or getattr(e, "body", None)
+
+        # ---- safest order: raw → text → json ---------------------------------
+        if detail is None:
+            print(e)                              # nothing else to show
+        elif hasattr(detail, "text"):             # httpx.Response from Groq SDK
+            print("RAW RESPONSE:", detail.text)   # always succeeds
         else:
-            print("Groq 400 →", payload or str(e))
-        raise
+            # fall back on whatever repr we have
+            print("DETAIL:", detail)
+
+        raise  
                              # optional: re-raise for traceback
 
     print("\n### Final Recommendations ###\n")
