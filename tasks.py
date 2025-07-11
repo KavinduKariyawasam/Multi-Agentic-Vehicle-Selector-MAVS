@@ -2,6 +2,13 @@
 from crewai import Task
 from textwrap import dedent
 
+OUTPUT_SCHEMA = dedent("""
+    {
+        "model_name": "string",
+        "trim": "string",
+        "price": "number"
+    }
+""")
 
 class CustomTasks:
     def __tip_section(self):
@@ -26,7 +33,7 @@ class CustomTasks:
                 And also this variable: {budget}
             """
             ),
-            expected_output="A clean table (JSON or DataFrame) listing qualifying petrol cars, their trims, engine details, and MSRP from only official manufacturer websites.",
+            expected_output="A list of JSON objects with model names and MSRP",
             agent=agent,
         )
 
