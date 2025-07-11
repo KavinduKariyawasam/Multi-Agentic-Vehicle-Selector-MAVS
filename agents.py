@@ -13,7 +13,7 @@ from crewai_tools import ScrapeWebsiteTool
 import os
 
 # SerperDevTool will read SERPER_API_KEY from the environment:
-search_tool = ScrapeWebsiteTool()             # -> BaseTool
+search_tool = ScrapeWebsiteTool(website_url='https://www.toyota.com')             # -> BaseTool
 # website_tool = WebsiteSearchTool()    
 # Load from .env
 load_dotenv()
@@ -24,38 +24,38 @@ tavily_api_key = os.getenv("TAVILY_API_KEY")
 search_tools = SearchTools()                 # <-- instantiate
 internet_search_tool = search_tools.search_internet 
 
-class CustomAgents:
+class VehicleSelectorAgents:
     def __init__(self):
         # self.OpenAIGPT35 = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.7)
         # self.OpenAIGPT4 = ChatOpenAI(model_name="gpt-4", temperature=0.7)
         # self.groq_llm = Groq(api_key="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")
         # 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
         self.search_tool = TavilySearch(max_results=5)
-        self.groq_llm = LLM(model="groq/llama-3.3-70b-versatile")
+        self.groq_llm = LLM(model="groq/deepseek-r1-distill-llama-70b")
 
-    def data_agent(self):
+    def data_agent(self, allowed_sites=None):
         return Agent(
             role="Official Manufacturer Site Data Agent",
             backstory=dedent(f"""
-                This agent is designed to extract and standardize vehicle data **only** from official 
-                automotive manufacturer websites (e.g., automobiles.honda.com, toyota.com). 
-                It simulates user interactions, handles modern JavaScript-heavy pages, and is immune 
-                to distractions from ads, dealer promos, or third-party listings.
-
-                The agent was created to help streamline vehicle research by focusing purely 
-                on the source-of-truth: the car makers themselves.
+                Purpose-built to extract and normalize vehicle specifications directly
+                from automakers' own U.S. websites (e.g., toyota.com, automobiles.honda.com).
+                It executes JavaScript, navigates menus/configurators, and ignores
+                ads, dealer inventory, or third-party listings.
             """),
             goal=dedent(f"""
-                To extract accurate, real-time information on brand-new petrol-powered vehicles 
-                listed on official U.S. manufacturer websites. It collects vehicle models, trims, 
-                engine types, features, and MSRP — while avoiding any third-party or dealer-based data.You can call one tool:
-
-                • search_tool: Searches official automaker sites only. Avoid dealers and ads.
+                • Gather real-time data on every brand-new vehicle model the OEM lists,
+                regardless of fuel type or body style.
+                • For each model & trim, capture: year, body_style, fuel_type,
+                powertrain/engine, drivetrain, transmission, key features, and MSRP.
+                • Output one JSON object per vehicle/trim (see schema below).
+                • Use only official manufacturer domains supplied in `allowed_sites`
+                (or an internal whitelist if none supplied).
             """),
             tools=[search_tool],
             allow_delegation=False,
             verbose=True,
             llm=self.groq_llm,
+            extra_state={"allowed_sites": allowed_sites or []}
         )
 
 
