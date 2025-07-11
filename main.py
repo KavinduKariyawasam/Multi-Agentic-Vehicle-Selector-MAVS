@@ -4,7 +4,7 @@ from crewai import Agent, Task, Crew, Process
 # from decouple import config
 
 from textwrap import dedent
-from agents import CustomAgents
+from agents import VehicleSelectorAgents
 from tasks import CustomTasks
 
 # Install duckduckgo-search for this example:
@@ -28,11 +28,15 @@ class CustomCrew:
 
     def run(self):
         # Define your custom agents and tasks in agents.py and tasks.py
-        agents = CustomAgents()
+        agents = VehicleSelectorAgents()
         tasks = CustomTasks()
 
         # Define your custom agents and tasks here
-        data_agent = agents.data_agent()
+        data_agent = agents.data_agent(allowed_sites=[
+                                            "www.toyota.com"
+                                            # , "www.ford.com", "automobiles.honda.com",
+                                            # "www.chevrolet.com", "www.ramtrucks.com"
+                                        ])
         # custom_agent_2 = agents.agent_2_name()
 
         # Custom tasks include agent name and variables as input
@@ -61,9 +65,11 @@ class CustomCrew:
 if __name__ == "__main__":
     print("## Welcome to Crew AI Template")
     print("-------------------------------")
-    location = input(dedent("""Enter location: """))
-    budget = input(dedent("""Enter budget: """))
-
+    # location = input(dedent("""Enter location: """))
+    # budget = input(dedent("""Enter budget: """))
+    location = "USA"
+    budget = "30000"
+    
     custom_crew = CustomCrew(location, budget)
     result = custom_crew.run()
     print("\n\n########################")
