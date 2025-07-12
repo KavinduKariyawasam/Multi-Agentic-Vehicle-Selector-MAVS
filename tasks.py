@@ -19,12 +19,11 @@ class VehicleRecommenderTasks:
             description=dedent(
                 f"""
                 Search only the official U.S. websites of automotive manufacturers to compile a list 
-                of **brand-new petrol-powered cars** priced below **${budget} USD**. 
+                of vehicles priced below **${budget} USD**. 
                 
                 Requirements:
                 - Search within the location: {location}
                 - Extract model names, available trims, engine specifications, and official MSRP
-                - Ignore hybrid, electric, or diesel models unless clearly petrol options exist
                 - Exclude any third-party marketplaces, dealership aggregators, or review sites
 
                 {self.__tip_section()}
@@ -33,7 +32,7 @@ class VehicleRecommenderTasks:
                 And also this variable: {budget}
             """
             ),
-            expected_output="A list of JSON objects with model names and MSRP",
+            expected_output=f"A list of JSON objects with {OUTPUT_SCHEMA}",
             agent=agent,
         )
 

@@ -7,21 +7,7 @@ from textwrap import dedent
 from agents import VehicleSelectorAgents
 from tasks import VehicleRecommenderTasks
 
-# Install duckduckgo-search for this example:
-# !pip install -U duckduckgo-search
-
-from langchain_community.tools import DuckDuckGoSearchRun
-
-search_tool = DuckDuckGoSearchRun()
-
-# os.environ["OPENAI_API_KEY"] = config("OPENAI_API_KEY")
-# os.environ["OPENAI_ORGANIZATION"] = config("OPENAI_ORGANIZATION_ID")
-
-# This is the main class that you will use to define your custom crew.
-# You can define as many agents and tasks as you want in agents.py and tasks.py
-
-
-class CustomCrew:
+class VehicleRecommenderCrew:
     def __init__(self, var1, var2):
         self.var1 = var1
         self.var2 = var2
@@ -61,18 +47,17 @@ class CustomCrew:
         return result
 
 
-# This is the main function that you will use to run your custom crew.
 if __name__ == "__main__":
-    print("## Welcome to Crew AI Template")
+    print("## Welcome to Vehicle Recommender Crew!")
     print("-------------------------------")
     # location = input(dedent("""Enter location: """))
     # budget = input(dedent("""Enter budget: """))
     location = "USA"
-    budget = "30000"
+    budget = "20000"
     
-    custom_crew = CustomCrew(location, budget)
+    custom_crew = VehicleRecommenderCrew(location, budget)
     result = custom_crew.run()
     print("\n\n########################")
-    print("## Here is you custom crew run result:")
+    print("Here is you custom crew run result:")
     print("########################\n")
     print(result)

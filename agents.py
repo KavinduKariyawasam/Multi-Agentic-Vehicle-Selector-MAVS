@@ -1,3 +1,4 @@
+import warnings
 from crewai import Agent, LLM
 from textwrap import dedent
 import requests
@@ -5,6 +6,9 @@ from groq import Groq
 from dotenv import load_dotenv
 import os
 from crewai_tools import ScrapeWebsiteTool, WebsiteSearchTool
+from tools.search_tools import website_search_tool
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # SerperDevTool will read SERPER_API_KEY from the environment:
 search_tool = ScrapeWebsiteTool(website_url='https://www.toyota.com')             # -> BaseTool
@@ -18,40 +22,21 @@ class VehicleSelectorAgents:
     def __init__(self):
         # self.search_tool = TavilySearch(max_results=5)
         self.groq_llm = LLM(model="groq/llama-3.3-70b-versatile")
-        self.website_search_tool = WebsiteSearchTool(config=dict(
-                                                        llm=dict(
-                                                        provider="groq", # or google, openai, anthropic, llama2, ...
-                                                        config=dict(
-                                                            model="llama-3.3-70b-versatile",
-                                                            # temperature=0.5,
-                                                            # top_p=1,
-                                                            # stream=true,
-                                                        ),
-                                                        ),
-                                                        embedder = dict(
-                                                            provider = "huggingface",        # local sentence-transformers
-                                                            config = dict(
-                                                                model = "sentence-transformers/all-MiniLM-L6-v2",
-                                                                # task_type = "retrieval_document",
-                                                            ),
-                                                        ),
-                                                    )
-                                                )
+        self.website_search_tool = website_search_tool()
 
     def data_agent(self, allowed_sites=None):
         return Agent(
             role="Official Manufacturer Site Data Agent",
             backstory=dedent(f"""
                 Purpose-built to extract and normalize vehicle specifications directly
-                from automakers' own U.S. websites (e.g., toyota.com, automobiles.honda.com).
+                only from toyota.com.
                 It executes JavaScript, navigates menus/configurators, and ignores
                 ads, dealer inventory, or third-party listings.
             """),
             goal=dedent(f"""
                 • Gather real-time data on every brand-new vehicle model the OEM lists,
                 regardless of fuel type or body style.
-                • For each model & trim, capture: year, body_style, fuel_type,
-                powertrain/engine, drivetrain, transmission, key features, and MSRP.
+                • For each model & trim, capture: year and MSRP.
                 • Output one JSON object per vehicle/trim (see schema below).
                 • Use only official manufacturer domains supplied in `allowed_sites`
                 (or an internal whitelist if none supplied).
