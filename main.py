@@ -5,7 +5,7 @@ from crewai import Agent, Task, Crew, Process
 
 from textwrap import dedent
 from agents import VehicleSelectorAgents
-from tasks import CustomTasks
+from tasks import VehicleRecommenderTasks
 
 # Install duckduckgo-search for this example:
 # !pip install -U duckduckgo-search
@@ -29,7 +29,7 @@ class CustomCrew:
     def run(self):
         # Define your custom agents and tasks in agents.py and tasks.py
         agents = VehicleSelectorAgents()
-        tasks = CustomTasks()
+        tasks = VehicleRecommenderTasks()
 
         # Define your custom agents and tasks here
         data_agent = agents.data_agent(allowed_sites=[

@@ -1,16 +1,10 @@
 from crewai import Agent, LLM
 from textwrap import dedent
-from langchain_community.llms import Ollama
-# from langchain_openai import ChatOpenAI
-# from langchain_core.language_models.llms import LLM
 import requests
 from groq import Groq
 from dotenv import load_dotenv
 import os
-from langchain_tavily import TavilySearch
-from tools.search_tools import SearchTools
 from crewai_tools import ScrapeWebsiteTool, WebsiteSearchTool
-import os
 
 # SerperDevTool will read SERPER_API_KEY from the environment:
 search_tool = ScrapeWebsiteTool(website_url='https://www.toyota.com')             # -> BaseTool
@@ -19,18 +13,10 @@ search_tool = ScrapeWebsiteTool(website_url='https://www.toyota.com')           
 load_dotenv()
 
 api_key = os.getenv("GROQ_API_KEY")
-tavily_api_key = os.getenv("TAVILY_API_KEY")
-
-search_tools = SearchTools()                 # <-- instantiate
-internet_search_tool = search_tools.search_internet 
 
 class VehicleSelectorAgents:
     def __init__(self):
-        # self.OpenAIGPT35 = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.7)
-        # self.OpenAIGPT4 = ChatOpenAI(model_name="gpt-4", temperature=0.7)
-        # self.groq_llm = Groq(api_key="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")
-        # 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
-        self.search_tool = TavilySearch(max_results=5)
+        # self.search_tool = TavilySearch(max_results=5)
         self.groq_llm = LLM(model="groq/llama-3.3-70b-versatile")
         self.website_search_tool = WebsiteSearchTool(config=dict(
                                                         llm=dict(
