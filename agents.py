@@ -9,12 +9,12 @@ from dotenv import load_dotenv
 import os
 from langchain_tavily import TavilySearch
 from tools.search_tools import SearchTools
-from crewai_tools import ScrapeWebsiteTool
+from crewai_tools import ScrapeWebsiteTool, WebsiteSearchTool
 import os
 
 # SerperDevTool will read SERPER_API_KEY from the environment:
 search_tool = ScrapeWebsiteTool(website_url='https://www.toyota.com')             # -> BaseTool
-# website_tool = WebsiteSearchTool()    
+
 # Load from .env
 load_dotenv()
 
@@ -31,7 +31,26 @@ class VehicleSelectorAgents:
         # self.groq_llm = Groq(api_key="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")
         # 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
         self.search_tool = TavilySearch(max_results=5)
-        self.groq_llm = LLM(model="groq/deepseek-r1-distill-llama-70b")
+        self.groq_llm = LLM(model="groq/llama-3.3-70b-versatile")
+        self.website_search_tool = WebsiteSearchTool(config=dict(
+                                                        llm=dict(
+                                                        provider="groq", # or google, openai, anthropic, llama2, ...
+                                                        config=dict(
+                                                            model="llama-3.3-70b-versatile",
+                                                            # temperature=0.5,
+                                                            # top_p=1,
+                                                            # stream=true,
+                                                        ),
+                                                        ),
+                                                        embedder = dict(
+                                                            provider = "huggingface",        # local sentence-transformers
+                                                            config = dict(
+                                                                model = "sentence-transformers/all-MiniLM-L6-v2",
+                                                                # task_type = "retrieval_document",
+                                                            ),
+                                                        ),
+                                                    )
+                                                )
 
     def data_agent(self, allowed_sites=None):
         return Agent(
@@ -51,7 +70,7 @@ class VehicleSelectorAgents:
                 • Use only official manufacturer domains supplied in `allowed_sites`
                 (or an internal whitelist if none supplied).
             """),
-            tools=[search_tool],
+            tools=[self.website_search_tool],
             allow_delegation=False,
             verbose=True,
             llm=self.groq_llm,
