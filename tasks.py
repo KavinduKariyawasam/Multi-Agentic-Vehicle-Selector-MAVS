@@ -4,6 +4,7 @@ from textwrap import dedent
 
 OUTPUT_SCHEMA = dedent("""
     {
+        "year": "number",
         "model_name": "string",
         "trim": "string",
         "price": "number"
@@ -36,17 +37,34 @@ class VehicleRecommenderTasks:
             agent=agent,
         )
 
-    def task_2_name(self, agent):
+    def vehicle_analyze_task(self, agent):
         return Task(
             description=dedent(
-                f"""
-            Take the input from task 1 and do something with it.
-                                       
+            f"""
+            Take the input from data_collect_task (a list of vehicles) and, for each vehicle, gather detailed specifications:
+            - Engine type
+            - Transmission type
+            - Fuel efficiency (MPG or equivalent)
+            - Key safety features
+
+            Only use official U.S. automotive manufacturer sources for this information.
+
             {self.__tip_section()}
 
-            Make sure to do something else.
-        """
+            Provide the specifications in a structured JSON format for each vehicle.
+            """
             ),
-            expected_output="The expected output of the task",
+            expected_output=dedent("""
+            A list of JSON objects, each containing:
+            {
+                "year": "number",
+                "model_name": "string",
+                "trim": "string",
+                "engine_type": "string",
+                "transmission_type": "string",
+                "fuel_efficiency": "string",
+                "safety_features": ["string", ...]
+            }
+            """),
             agent=agent,
         )

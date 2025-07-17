@@ -2,10 +2,12 @@ import os
 from crewai import Agent, Task, Crew, Process
 # from langchain_openai import ChatOpenAI
 # from decouple import config
-
+import warnings
 from textwrap import dedent
 from agents import VehicleSelectorAgents
 from tasks import VehicleRecommenderTasks
+
+warnings.filterwarnings("ignore")
 
 class VehicleRecommenderCrew:
     def __init__(self, var1, var2):
@@ -23,7 +25,7 @@ class VehicleRecommenderCrew:
                                             # , "www.ford.com", "automobiles.honda.com",
                                             # "www.chevrolet.com", "www.ramtrucks.com"
                                         ])
-        # custom_agent_2 = agents.agent_2_name()
+        vehicle_analyzer_agent = agents.vehicle_analyzer_agent()
 
         # Custom tasks include agent name and variables as input
         data_collect_task = tasks.data_collect_task(
@@ -32,14 +34,14 @@ class VehicleRecommenderCrew:
             self.var2,
         )
 
-        # custom_task_2 = tasks.task_2_name(
-        #     custom_agent_2,
-        # )
+        vehicle_analyze_task = tasks.vehicle_analyze_task(
+            vehicle_analyzer_agent,
+        )
 
         # Define your custom crew here
         crew = Crew(
-            agents=[data_agent],
-            tasks=[data_collect_task],
+            agents=[data_agent, vehicle_analyzer_agent],
+            tasks=[data_collect_task, vehicle_analyze_task],
             verbose=True,
         )
 
@@ -48,7 +50,7 @@ class VehicleRecommenderCrew:
 
 
 if __name__ == "__main__":
-    print("## Welcome to Vehicle Recommender Crew!")
+    print("Welcome to Vehicle Recommender Crew!")
     print("-------------------------------")
     # location = input(dedent("""Enter location: """))
     # budget = input(dedent("""Enter budget: """))

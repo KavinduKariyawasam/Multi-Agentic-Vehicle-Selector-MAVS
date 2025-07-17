@@ -16,13 +16,18 @@ search_tool = ScrapeWebsiteTool(website_url='https://www.toyota.com')           
 # Load from .env
 load_dotenv()
 
-api_key = os.getenv("GROQ_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
 
 class VehicleSelectorAgents:
     def __init__(self):
         # self.search_tool = TavilySearch(max_results=5)
         self.groq_llm = LLM(model="groq/llama-3.3-70b-versatile")
-        self.website_search_tool = website_search_tool()
+        self.together_ai_llm = LLM(model="together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo",
+                                    api_key=os.environ.get("TOGETHER_API_KEY"),
+                                    base_url="https://api.together.xyz/v1"
+                                    )
+        self.website_search_tool = website_search_tool(website='https://www.toyota.com')
 
     def data_agent(self, allowed_sites=None):
         return Agent(
@@ -34,28 +39,41 @@ class VehicleSelectorAgents:
                 ads, dealer inventory, or third-party listings.
             """),
             goal=dedent(f"""
-                • Gather real-time data on every brand-new vehicle model the OEM lists,
-                regardless of fuel type or body style.
-                • For each model & trim, capture: year and MSRP.
-                • Output one JSON object per vehicle/trim (see schema below).
-                • Use only official manufacturer domains supplied in `allowed_sites`
+                Gather real-time data on every brand-new vehicle model the OEM lists, regardless of fuel type or body style.
+                For each model & trim, capture: year and MSRP.
+                Output one JSON object per vehicle/trim (see schema below).
+                Use only official manufacturer domains supplied in `allowed_sites`
                 (or an internal whitelist if none supplied).
             """),
             tools=[self.website_search_tool],
             allow_delegation=False,
             verbose=True,
-            llm=self.groq_llm,
+            llm=self.together_ai_llm,
             extra_state={"allowed_sites": allowed_sites or []}
         )
 
 
-    def agent_2_name(self):
+    def vehicle_analyzer_agent(self):
         return Agent(
-            role="Define agent 2 role here",
-            backstory=dedent(f"""Define agent 2 backstory here"""),
-            goal=dedent(f"""Define agent 2 goal here"""),
-            # tools=[tool_1, tool_2],
+            role="Vehicle Specification Extraction Agent",
+            backstory=dedent(f"""
+            This agent is designed to extract comprehensive technical specifications
+            for each vehicle model and trim provided by the data_collect_task.
+            It focuses on gathering accurate details such as engine type, transmission,
+            fuel efficiency, and key safety features, strictly from official U.S. automotive manufacturer sources.
+            """),
+            goal=dedent(f"""
+            For every vehicle in the input list, collect and structure detailed specifications:
+            - Engine type
+            - Transmission type
+            - Fuel efficiency (MPG or equivalent)
+            - Key safety features
+
+            Use only official U.S. manufacturer sources for all information.
+            Output the results as a list of JSON objects, each representing a vehicle with its specifications.
+            """),
+            tools=[self.website_search_tool],
             allow_delegation=False,
             verbose=True,
-            llm=self.groq_llm,
+            llm=self.together_ai_llm,
         )
