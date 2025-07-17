@@ -34,8 +34,9 @@ class SearchTools():
 
         return '\n'.join(string)
 
-def website_search_tool():
-    return WebsiteSearchTool(config=dict(llm=dict(
+def website_search_tool(website: str = 'https://toyota.com'):
+    return WebsiteSearchTool(website=website, 
+                    config=dict(llm=dict(
                         provider="groq", # or google, openai, anthropic, llama2, ...
                         config=dict(
                             model="llama-3.3-70b-versatile",
