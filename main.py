@@ -36,6 +36,7 @@ class VehicleRecommenderCrew:
 
         vehicle_analyze_task = tasks.vehicle_analyze_task(
             vehicle_analyzer_agent,
+            data_collect_task
         )
 
         # Define your custom crew here

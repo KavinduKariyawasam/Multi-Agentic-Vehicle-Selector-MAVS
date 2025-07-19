@@ -37,7 +37,7 @@ class VehicleRecommenderTasks:
             agent=agent,
         )
 
-    def vehicle_analyze_task(self, agent):
+    def vehicle_analyze_task(self, agent,vehicles_task):
         return Task(
             description=dedent(
             f"""
@@ -68,4 +68,5 @@ class VehicleRecommenderTasks:
             }
             """),
             agent=agent,
+            context=[vehicles_task]
         )
