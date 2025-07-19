@@ -1,4 +1,3 @@
-# To know more about the Task class, visit: https://docs.crewai.com/concepts/tasks
 from crewai import Task
 from textwrap import dedent
 
@@ -69,4 +68,41 @@ class VehicleRecommenderTasks:
             """),
             agent=agent,
             context=[vehicles_task]
+        )
+    
+
+    def select_best_task(self, agent, analyzed_task: Task, budget: int):
+        return Task(
+            description=dedent("""
+                You are the final recommender.
+
+                ### How to read each vehicle
+                * **Price** → `pricing.msrp`
+                * **MPG**   → `fuelEconomy.combinedMpg`  
+                  (treat 0 as worst)
+                * **#Safety**→ `len(features.safety)`
+                * **Trim**  → `identification.trim`
+
+                ### Scoring rubric
+                1. price ≤ budget (hard filter)
+                2. higher MPG ⇒ higher rank
+                3. more safety features ⇒ higher rank
+                4. newer model year breaks ties
+
+                ### Output (exactly)
+                ```json
+                {{
+                  "top_picks": [
+                    {{ "rank": 1, "model_name": "...", "trim": "...", "price": ..., "key_reason": "..." }},
+                    {{ "rank": 2, "model_name": "...", "trim": "...", "price": ..., "key_reason": "..." }},
+                    {{ "rank": 3, "model_name": "...", "trim": "...", "price": ..., "key_reason": "..." }}
+                  ],
+                  "analysis": "150-250 word comparison explaining why #1 outranks #2 and #3"
+                }}
+                ```
+            """),
+            expected_output="The JSON block above",
+            agent=agent,
+            context=[analyzed_task],
+            markdown=True
         )
