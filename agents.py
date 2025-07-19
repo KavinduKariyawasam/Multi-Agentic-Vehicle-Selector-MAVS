@@ -77,3 +77,17 @@ class VehicleSelectorAgents:
             verbose=True,
             llm=self.together_ai_llm,
         )
+    
+    def vehicle_recommender_agent(self):
+        return Agent(
+            role="Vehicle Recommendation Agent",
+            backstory=dedent("""
+               An automotive analyst who ranks options against a budget,
+                balancing cost, efficiency, and safety, and explains the trade-offs
+                in plain English.
+            """),
+            goal="Produce the top 3 recommendations and a concise, transparent analysis.",
+            llm=self.groq_llm,
+            verbose=True,
+            allow_delegation=False,
+        )

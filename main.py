@@ -26,6 +26,7 @@ class VehicleRecommenderCrew:
                                             # "www.chevrolet.com", "www.ramtrucks.com"
                                         ])
         vehicle_analyzer_agent = agents.vehicle_analyzer_agent()
+        recommender_agent      = agents.vehicle_recommender_agent()
 
         # Custom tasks include agent name and variables as input
         data_collect_task = tasks.data_collect_task(
@@ -35,13 +36,19 @@ class VehicleRecommenderCrew:
         )
 
         vehicle_analyze_task = tasks.vehicle_analyze_task(
-            vehicle_analyzer_agent,
+            vehicle_analyzer_agent,data_collect_task
+        )
+
+        select_best_task = tasks.select_best_task(
+            recommender_agent,
+            vehicle_analyze_task,
+            self.var2   # budget
         )
 
         # Define your custom crew here
         crew = Crew(
-            agents=[data_agent, vehicle_analyzer_agent],
-            tasks=[data_collect_task, vehicle_analyze_task],
+            agents=[data_agent, vehicle_analyzer_agent, recommender_agent],
+            tasks=[data_collect_task, vehicle_analyze_task, select_best_task],
             verbose=True,
         )
 

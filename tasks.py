@@ -37,7 +37,7 @@ class VehicleRecommenderTasks:
             agent=agent,
         )
 
-    def vehicle_analyze_task(self, agent):
+    def vehicle_analyze_task(self, agent, vehicles_task):
         return Task(
             description=dedent(
             f"""
@@ -67,4 +67,36 @@ class VehicleRecommenderTasks:
             }
             """),
             agent=agent,
+            context=[vehicles_task],  # <-- classic context-passing
+        )
+    
+    def select_best_task(self, agent, analyzed_task, budget):
+        return Task(
+            description=dedent(f"""
+                You are the final recommender.  
+                Using the fully-specified vehicle list in context,
+                choose the **three vehicles** that best match a maximum
+                budget of **${budget}**.
+                ### Scoring rubric
+                1. Price ≤ budget (hard filter)  
+                2. Higher fuel-efficiency ⇒ more relevant  
+                3. More safety features ⇒ more relevant  
+                4. Newer model year breaks ties
+
+                **Output JSON**  
+                ```json
+                {{
+                  "top_picks": [
+                    {{ "rank": 1, "model_name": "...", "trim": "...", "price": ..., "key_reason": "..." }},
+                    {{ "rank": 2, "model_name": "...", "trim": "...", "price": ..., "key_reason": "..." }},
+                    {{ "rank": 3, "model_name": "...", "trim": "...", "price": ..., "key_reason": "..." }}
+                  ],
+                  "analysis": "150–250 word comparison explaining why #1 outranks #2 and #3"
+                }}
+                ```
+                """),
+            expected_output="The JSON above",
+            agent=agent,
+            context=[analyzed_task],  # <-- classic context-passing
+            markdown=True             # pretty output, optional
         )
