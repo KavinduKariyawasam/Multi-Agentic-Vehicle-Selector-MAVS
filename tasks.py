@@ -59,6 +59,7 @@ class VehicleRecommenderTasks:
             {
                 "year": "number",
                 "model_name": "string",
+                "price": "number",
                 "trim": "string",
                 "engine_type": "string",
                 "transmission_type": "string",

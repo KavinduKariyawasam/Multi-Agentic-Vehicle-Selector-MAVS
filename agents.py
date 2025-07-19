@@ -11,7 +11,7 @@ from tools.search_tools import website_search_tool
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # SerperDevTool will read SERPER_API_KEY from the environment:
-search_tool = ScrapeWebsiteTool(website_url='https://www.toyota.com')             # -> BaseTool
+search_tool = ScrapeWebsiteTool(website_url="https://www.toyota.com")  # -> BaseTool
 
 # Load from .env
 load_dotenv()
@@ -19,26 +19,28 @@ load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
 
+
 class VehicleSelectorAgents:
     def __init__(self):
         # self.search_tool = TavilySearch(max_results=5)
         self.groq_llm = LLM(model="groq/llama-3.3-70b-versatile")
-        self.together_ai_llm = LLM(model="together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo",
-                                    api_key=os.environ.get("TOGETHER_API_KEY"),
-                                    base_url="https://api.together.xyz/v1"
-                                    )
-        self.website_search_tool = website_search_tool(website='https://www.toyota.com')
+        self.together_ai_llm = LLM(
+            model="together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo",
+            api_key=TOGETHER_API_KEY,
+            base_url="https://api.together.xyz/v1",
+        )
+        self.website_search_tool = website_search_tool(website="https://www.toyota.com")
 
     def data_agent(self, allowed_sites=None):
         return Agent(
             role="Official Manufacturer Site Data Agent",
-            backstory=dedent(f"""
+            backstory=dedent("""
                 Purpose-built to extract and normalize vehicle specifications directly
                 only from toyota.com.
                 It executes JavaScript, navigates menus/configurators, and ignores
                 ads, dealer inventory, or third-party listings.
             """),
-            goal=dedent(f"""
+            goal=dedent("""
                 Gather real-time data on every brand-new vehicle model the OEM lists, regardless of fuel type or body style.
                 For each model & trim, capture: year and MSRP.
                 Output one JSON object per vehicle/trim (see schema below).
@@ -49,21 +51,21 @@ class VehicleSelectorAgents:
             allow_delegation=False,
             verbose=True,
             llm=self.together_ai_llm,
-            extra_state={"allowed_sites": allowed_sites or []}
+            extra_state={"allowed_sites": allowed_sites or []},
         )
-
 
     def vehicle_analyzer_agent(self):
         return Agent(
             role="Vehicle Specification Extraction Agent",
-            backstory=dedent(f"""
+            backstory=dedent("""
             This agent is designed to extract comprehensive technical specifications
             for each vehicle model and trim provided by the data_collect_task.
             It focuses on gathering accurate details such as engine type, transmission,
             fuel efficiency, and key safety features, strictly from official U.S. automotive manufacturer sources.
             """),
-            goal=dedent(f"""
+            goal=dedent("""
             For every vehicle in the input list, collect and structure detailed specifications:
+            - price
             - Engine type
             - Transmission type
             - Fuel efficiency (MPG or equivalent)

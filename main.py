@@ -55,7 +55,7 @@ if __name__ == "__main__":
     # location = input(dedent("""Enter location: """))
     # budget = input(dedent("""Enter budget: """))
     location = "USA"
-    budget = "20000"
+    budget = "40000"
     
     custom_crew = VehicleRecommenderCrew(location, budget)
     result = custom_crew.run()
