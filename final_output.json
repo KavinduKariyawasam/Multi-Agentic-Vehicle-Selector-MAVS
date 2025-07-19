@@ -1,8 +1,0 @@
-{
-  "top_picks": [
-    { "rank": 1, "model_name": "Corolla Hybrid", "trim": "LE", "price": 19800, "key_reason": "Highest fuel efficiency" },
-    { "rank": 2, "model_name": "Corolla", "trim": "LE", "price": 19500, "key_reason": "Balanced price and features" },
-    { "rank": 3, "model_name": "Corolla Hatchback", "trim": "SE", "price": 19200, "key_reason": "Lowest price but same fuel efficiency as Corolla LE" }
-  ],
-  "analysis": "The Corolla Hybrid LE outranks the Corolla LE and Corolla Hatchback SE due to its higher fuel efficiency, which is a key factor in the scoring rubric. The Corolla LE is ranked second because it has the same safety features and model year as the Corolla Hybrid LE but lower fuel efficiency. The Corolla Hatchback SE is ranked third due to its lower price but same fuel efficiency as the Corolla LE. Overall, the Corolla Hybrid LE provides the best balance of price, fuel efficiency, and safety features, making it the top pick."
-}
