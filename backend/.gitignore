@@ -1,0 +1,11 @@
+#ignore this in github
+
+# environment variables
+.env
+
+#Cache folders
+__pycache__/
+db/
+sample_output_of_data_collecter_agent.txt
+final_output.json
+results/
